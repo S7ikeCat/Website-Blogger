@@ -29,5 +29,55 @@ model Post {
   category_id Int?
   category    Category? @relation(fields: [category_id], references: [id], onDelete: SetNull)
 
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/* =======================
+   Enum roles
+======================= */
+
+enum Role {
+  USER
+  ADMIN
+}
+
+/* =======================
+   Model user
+======================= */
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  avatarUrl    String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts        Post[]
+
+  following    Follow[] @relation("Following")
+  followers    Follow[] @relation("Followers")
+}
+
+/* =======================
+   Model Follow
+======================= */
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+
+  follower    User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
 }

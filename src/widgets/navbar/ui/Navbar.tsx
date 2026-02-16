@@ -2,9 +2,51 @@
 
 import Logo from "@/shared/assets/logo.png"
 import Image from "next/image"
-import Arrow from "@/shared/assets/arrow.png"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+
+type NavbarUser = {
+  id: number
+  username: string
+  avatarUrl: string | null
+  role: "USER" | "ADMIN"
+}
 
 export function Navbar() {
+
+  const [user, setUser] = useState<NavbarUser | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch("/api/auth/me", {
+          cache: "no-store",
+          credentials: "include",
+        })
+  
+        if (!res.ok) {
+          setUser(null)
+          return
+        }
+  
+        const data = (await res.json()) as { user: NavbarUser | null }
+        setUser(data.user)
+      } catch {
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    loadUser()
+  }, [])
+
+  async function logout() {
+    await fetch("/api/auth/logout", {method: "POST"})
+    setUser(null)
+    window.location.reload()
+  }
 
   return (
     <div>
@@ -19,30 +61,27 @@ export function Navbar() {
     height={70}
   />
   {/* Button wrapper */}
-  <div className="relative inline-block">
-    <div className="absolute -left-2.5 top-2.5 h-full w-full bg-black" />
-    <button
-      className="
-        relative
-        inline-flex items-center gap-3
-        border-2 border-black
-        bg-white
-        px-6 py-3
-        font-semibold text-black
-        transition-transform
-        active:-translate-x-0.5
-        active:translate-y-0.5
-      "
-    >
-      <span>Get started</span>
+  <div className="flex items-center gap-4">
+    {!loading && !user && (
+      <>
+      <Link href="/login" className="font-semibold">Login</Link>
+      <Link href="/register" className="font-semibold">Register</Link>
+      </>
+    )}
 
-      <Image
-        src={Arrow}
-        alt=""
-        width={20}
-        height={20}
-      />
-    </button>
+    {!loading && user && (
+      <>
+      <span className="font-semibold">
+        {user.username}
+      </span>
+
+      {user.role === "ADMIN" && (
+        <Link href="/admin" className="font-semibold">Admin</Link>
+      )}
+
+      <button onClick={logout} className="font-semibold">Logout</button>
+      </>
+    )}
   </div>
 </div>
 </div>
