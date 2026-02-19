@@ -16,6 +16,7 @@ export async function getCurrentUser() {
             username: true,
             email: true,
             avatarUrl: true,
+            avatarKey: true,
             role: true,
             },
         })

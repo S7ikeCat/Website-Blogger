@@ -23,6 +23,7 @@ model Category {
 model Post {
   post_id     Int      @id @default(autoincrement())
   img_post    String?
+  imgPostKey  String?  // ✅ ключ UploadThing для удаления
   title       String
   description String
 
@@ -55,6 +56,7 @@ model User {
   email        String   @unique
   passwordHash String
   avatarUrl    String?
+  avatarKey   String?  // ✅ ключ UploadThing для удаления
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

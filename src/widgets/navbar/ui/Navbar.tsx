@@ -72,7 +72,10 @@ export function Navbar() {
     {!loading && user && (
       <>
       <span className="font-semibold">
+        <Link href={`/u/${user.username}`}>
         {user.username}
+        </Link>
+        
       </span>
 
       {user.role === "ADMIN" && (

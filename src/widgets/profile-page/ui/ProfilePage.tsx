@@ -5,6 +5,7 @@ import Link from "next/link"
 
 type Category = {id:number; name: string}
 
+
 type Post = {
     post_id: number
     title: string
@@ -25,16 +26,22 @@ type Props = {
     profile: Profile
     posts: Post[]
     isOwner: boolean
+    isFollowing: boolean
+    viewerRole?: "USER" | "ADMIN" 
 }
 
-export function ProfilePage({profile, posts, isOwner}: Props) {
+export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: Props) {
+
+  const isViewerAdmin = viewerRole === "ADMIN"
+  
+
     return (
         <div className="mx-auto max-w-4xl p-6">
       <div className="flex items-center justify-between border-2 border-black bg-white p-4">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-black">
             <Image
-              src={profile.avatarUrl ?? "blogger/public/default-avatar.jpg"}
+              src={profile.avatarUrl ?? "/default-avatar.jpg"}
               alt=""
               width={56}
               height={56}
@@ -57,14 +64,39 @@ export function ProfilePage({profile, posts, isOwner}: Props) {
           </div>
         </div>
 
-        {isOwner && (
-          <Link
-            href="/admin"
-            className="border-2 border-black bg-white px-4 py-2 font-semibold"
-          >
-            Go to admin
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+  {isViewerAdmin && (
+    <Link
+      href="/admin"
+      className="border-2 border-black bg-white px-4 py-2 font-semibold"
+    >
+      Go to admin
+    </Link>
+  )}
+
+  {!isOwner && (
+    <button
+      className="border-2 border-black bg-white px-4 py-2 font-semibold"
+      onClick={async () => {
+        if (isFollowing) {
+          await fetch(
+            `/api/follow?username=${encodeURIComponent(profile.username)}`,
+            { method: "DELETE" }
+          )
+        } else {
+          await fetch("/api/follow", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: profile.username }),
+          })
+        }
+        window.location.reload()
+      }}
+    >
+      {isFollowing ? "Unfollow" : "Follow"}
+    </button>
+  )}
+</div>
       </div>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
