@@ -1,10 +1,9 @@
 "use client"
 
 
-import { OurFileRouter } from "@/app/api/uploadthing/core";
-import { generateUploadButton } from "@uploadthing/react";
+import { UploadButtonPost } from "@/shared/lib/uploadthing"
 import { useState } from "react"
-export const UploadButton = generateUploadButton<OurFileRouter>()
+
 
 type Category = {id: number; name: string}
 
@@ -49,10 +48,10 @@ export function CreatePostForm({categories}: {categories: Category[]}) {
     Post image
   </label>
 
-  <UploadButton
+  <UploadButtonPost
     endpoint="postImage"
     onClientUploadComplete={(res) => {
-      const url = res?.[0]?.url
+      const url = res?.[0]?.ufsUrl
       if (url) setImgPost(url)
     }}
     onUploadError={(error: Error) => {

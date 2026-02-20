@@ -1,21 +1,21 @@
 import { createRouteHandler } from "uploadthing/next"
-import { ourFileRouter } from "./core"
+import { ourFileRouter } from "../uploadthing/core"
 import { withUploadThingToken } from "@/shared/lib/utMutex"
 import type { NextRequest } from "next/server"
 
 const handler = createRouteHandler({ router: ourFileRouter })
 
-const rawToken = process.env.UPLOADTHING_TOKEN_POST
+const rawToken = process.env.UPLOADTHING_TOKEN_AVATAR
 if (!rawToken) {
-  throw new Error("UPLOADTHING_TOKEN_POST is missing or empty")
+  throw new Error("UPLOADTHING_TOKEN_AVATAR is missing or empty")
 }
 
-const tokenPost = rawToken.trim()
+const tokenAvatar = rawToken.trim()
 
 export async function GET(req: NextRequest) {
-  return withUploadThingToken(tokenPost, () => handler.GET(req))
+  return withUploadThingToken(tokenAvatar, () => handler.GET(req))
 }
 
 export async function POST(req: NextRequest) {
-  return withUploadThingToken(tokenPost, () => handler.POST(req))
+  return withUploadThingToken(tokenAvatar, () => handler.POST(req))
 }

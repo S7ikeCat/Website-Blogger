@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react";
-import { UploadButton } from "@/shared/lib/uploadthing"
+import { UploadButtonAvatar } from "@/shared/lib/uploadthing-avatar"
 
 
 
@@ -108,7 +108,7 @@ export default function SettingsPage({initial}: Props) {
 
             <div className="">
                 <div className="">Avatar</div>
-                <UploadButton endpoint="avatarImage" onClientUploadComplete={(res) => {
+                <UploadButtonAvatar endpoint="avatarImage" onClientUploadComplete={(res) => {
                     const file = res?.[0]
                     if (!file) return
                     const url = file.serverData?.url
