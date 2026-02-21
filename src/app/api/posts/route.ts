@@ -6,6 +6,7 @@ type CreatePostBody = {
     title: string
     description: string
     img_post?: string | null
+    imgPostKey?: string | null
     category_id?: number | string | null
 }
 
@@ -34,12 +35,13 @@ export async function POST(req: Request) {
         title,
         description,
         img_post: body.img_post ?? null,
+        imgPostKey: body.imgPostKey ?? null,
         category_id: Number.isFinite(categoryId) ? categoryId : null,
         
         authorId: user.id,
 
       },
-      include: { category: true, author: true },
+      include: { category: true, author: {select: {id: true, username: true}} },
     })
   
     return Response.json(post)

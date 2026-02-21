@@ -7,12 +7,14 @@ type Category = {id:number; name: string}
 
 
 type Post = {
+    author: { username: string }
     post_id: number
     title: string
     description: string
     img_post: string | null
     category: Category | null
 }
+
 
 type Profile = {
     id: number
@@ -100,23 +102,74 @@ export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: 
       </div>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
+      
         {posts.map((p) => (
           <article key={p.post_id} className="border-2 border-black bg-white p-5">
+            {p.img_post?.trim() && (
+        <Link href={`/posts/${p.post_id}`} className="block">
+          <div className="mb-4 overflow-hidden border-2 border-black">
+            <Image
+              src={p.img_post}
+              alt={p.title}
+              width={800}
+              height={400}
+              unoptimized
+              className="h-48 w-full object-cover"
+            />
+          </div>
+        </Link>
+      )}
             <div className="text-xs font-semibold uppercase text-gray-500">
               {p.category?.name ?? "Uncategorized"}
             </div>
-            <h2 className="mt-2 text-lg font-bold">{p.title}</h2>
+            <div className="mt-1 text-xs text-gray-600">
+    by{" "}
+    <Link
+      href={`/u/${p.author.username}`}
+      className="underline font-semibold"
+    >
+      @{p.author.username}
+    </Link>
+  </div>
+            <h2 className="mt-2 text-lg font-bold"><Link href={`/posts/${p.post_id}`} className="underline">
+          {p.title}
+        </Link></h2>
             <p className="mt-2 text-sm text-gray-700">{p.description}</p>
             {isOwner && (
+
+<div className="mt-4 flex gap-4">
+<Link
+  href={`/posts/${p.post_id}/edit`}
+  className="mt-4 border-2 border-black bg-white px-3 py-2 text-sm font-semibold"
+>
+  Edit
+</Link>
   <button
     className="mt-4 border-2 border-black bg-white px-3 py-2 text-sm font-semibold"
     onClick={async () => {
-      await fetch(`/api/posts/${p.post_id}`, { method: "DELETE" })
+      if (!p.post_id) {
+        alert("Post id is missing in UI data")
+        console.log("POST OBJECT:", p)
+        return
+      }
+  
+      const res = await fetch(`/api/posts/${p.post_id}`, {
+        method: "DELETE",
+      })
+  
+      const data = await res.json().catch(() => ({}))
+  
+      if (!res.ok) {
+        alert(data?.error ?? "Delete failed")
+        return
+      }
+  
       window.location.reload()
     }}
   >
     Delete
   </button>
+  </div>
 )}
           </article>
           

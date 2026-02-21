@@ -1,5 +1,6 @@
 import { prisma } from "@/shared/lib/prisma"
 import Image from "next/image"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 export default async function PostPage({params}: {params: Promise<{ post_id: string }>
@@ -10,13 +11,23 @@ export default async function PostPage({params}: {params: Promise<{ post_id: str
 
     const post = await prisma.post.findUnique({
         where: {post_id: id},
-        include: {category: true},
+        include: {category: true,
+            author: {select: {username: true, avatarUrl: true}}
+        },
     })
 
     if(!post) notFound()
     
     return (
         <main>
+
+            <div className="">
+                Author:{" "}
+                <Link className="underline" href={`/u/${post.author.username}`}>
+                @{post.author.username}
+                </Link>
+            </div>
+
             <div className="text-xs font-semibold uppercase text-gray-500">
                 {post.category?.name ?? "Uncategorized"}
             </div>

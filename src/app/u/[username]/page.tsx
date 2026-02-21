@@ -30,7 +30,7 @@ export default async function Page({params}: PageProps) {
         const posts = await prisma.post.findMany({
             where: {authorId: user.id},
             orderBy: {createdAt: "desc"},
-            include: {category: true},
+            include: {category: true, author: {select: {username: true}}},
         })
 
         const isOwner = viewer?.id === user.id

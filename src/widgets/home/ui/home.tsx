@@ -11,6 +11,7 @@ type Category = {
 }
 
 type Post = {
+  author: {username: string}
   post_id: number
   title: string
   description: string
@@ -66,40 +67,45 @@ export function Home({ categories, posts, activeCategory }: HomeProps) {
 
       {/* posts */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-       
-        {posts.map((p) => (
-           <React.Fragment key={p.post_id}>
-          <Link key={p.post_id} href={`/posts/${p.post_id}`} className="block">
-          <article
-            key={p.post_id}
-            className="border-2 border-black bg-white p-5"
-          >
-{p.img_post?.trim() && (
-  <div className="mb-4 overflow-hidden border-2 border-black">
-    <Image
-      src={p.img_post}
-      alt={p.title}
-      width={800}
-      height={400}
-      unoptimized
-      className="h-48 w-full object-cover"
-    />
-  </div>
-)}
+  {posts.map((p) => (
+    <article key={p.post_id} className="border-2 border-black bg-white p-5">
+      {p.img_post?.trim() && (
+        <Link href={`/posts/${p.post_id}`} className="block">
+          <div className="mb-4 overflow-hidden border-2 border-black">
+            <Image
+              src={p.img_post}
+              alt={p.title}
+              width={800}
+              height={400}
+              unoptimized
+              className="h-48 w-full object-cover"
+            />
+          </div>
+        </Link>
+      )}
 
-            <div className="text-xs font-semibold uppercase text-gray-500">
-              {p.category?.name ?? "Uncategorized"}
-            </div>
+      <div className="text-xs font-semibold uppercase text-gray-500">
+        {p.category?.name ?? "Uncategorized"}
+      </div>
 
-            <h2 className="mt-2 text-lg font-bold">
-              {p.title}
-            </h2>
+      {/* ✅ Автор */}
+      <div className="mt-1 text-xs text-gray-600">
+        by{" "}
+        <Link href={`/u/${p.author.username}`} className="underline font-semibold">
+          @{p.author.username}
+        </Link>
+      </div>
 
-            <p className="mt-2 text-sm text-gray-700">
-              {p.description}
-            </p>
-          </article></Link>
-          </React.Fragment>
+      {/* ✅ Заголовок — ссылка на пост */}
+      <h2 className="mt-2 text-lg font-bold">
+        <Link href={`/posts/${p.post_id}`} className="underline">
+          {p.title}
+        </Link>
+      </h2>
+
+      <p className="mt-2 text-sm text-gray-700">{p.description}</p>
+    </article>
+          
         ))}
         
       </div>

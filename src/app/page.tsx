@@ -19,7 +19,7 @@ export default async function Mainpage(props: {searchParams: Promise<{category?:
     activeCategory !== "all"
     ? {category: {name: activeCategory}}
     : undefined,
-    include: {category: true},
+    include: {category: true, author: {select: {username: true}}},
     orderBy: {createdAt: "desc"}
   })
   return (
