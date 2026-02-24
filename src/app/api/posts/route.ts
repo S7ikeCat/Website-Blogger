@@ -44,5 +44,9 @@ export async function POST(req: Request) {
       include: { category: true, author: {select: {id: true, username: true}} },
     })
   
-    return Response.json(post)
+    return Response.json({ok: true,
+      post: {
+        post_id: post.post_id,
+      },
+      username: post.author.username,})
   }

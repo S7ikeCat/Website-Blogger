@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import React from "react"
+import { useRouter } from "next/navigation"
 
 /* ===== types ===== */
 type Category = {
@@ -25,8 +26,11 @@ type HomeProps = {
   activeCategory: string
 }
 
+
+
 /* ===== component ===== */
 export function Home({ categories, posts, activeCategory }: HomeProps) {
+  const router = useRouter()
   return (
     <div>
       {/* info */}
@@ -63,12 +67,23 @@ export function Home({ categories, posts, activeCategory }: HomeProps) {
             {c.name}
           </Link>
         ))}
+        <Link href="/?category=following"
+        className={`border-2 border-black px-4 py-2 ${
+          activeCategory === "following"
+            ? "bg-black text-white"
+            : "bg-white"
+        }`}>Following</Link>
       </div>
-
+      {activeCategory === "following" && posts.length === 0 && (
+  <div>There is no followings</div>
+)}
       {/* posts */}
+      
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        
   {posts.map((p) => (
-    <article key={p.post_id} className="border-2 border-black bg-white p-5">
+   
+    <article  key={p.post_id} className="border-2 border-black bg-white p-5" onClick={() => router.push(`/posts/${p.post_id}`)}>
       {p.img_post?.trim() && (
         <Link href={`/posts/${p.post_id}`} className="block">
           <div className="mb-4 overflow-hidden border-2 border-black">
@@ -105,7 +120,7 @@ export function Home({ categories, posts, activeCategory }: HomeProps) {
 
       <p className="mt-2 text-sm text-gray-700">{p.description}</p>
     </article>
-          
+
         ))}
         
       </div>

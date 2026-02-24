@@ -2,6 +2,9 @@
 
 import { useState } from "react"
 import { UploadButtonPost } from "@/shared/lib/uploadthing"
+import { useRouter } from "next/navigation"
+import Swal from "sweetalert2"
+
 
 type Category = {
   id: number
@@ -16,6 +19,8 @@ export function CreatePostForm({ categories }: { categories: Category[] }) {
   )
   const [imgPost, setImgPost] = useState<string>("")
   const [imgPostKey, setImgPostKey] = useState<string>("")
+
+  const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -32,18 +37,38 @@ export function CreatePostForm({ categories }: { categories: Category[] }) {
       }),
     })
 
+    const data = await res.json()
+
     if (!res.ok) {
-      const text = await res.text()
-      alert(text)
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data?.error ?? "Create failed",
+      })
       return
     }
-
     setTitle("")
     setDescription("")
     setImgPost("")
     setImgPostKey("")
 
-    alert("Post created!")
+    const postId = data.post.post_id
+const username = data.username
+
+const result = await Swal.fire({
+  title: "Post created!",
+  text: "Where do you want to go?",
+  icon: "success",
+  showCancelButton: true,
+  confirmButtonText: "Go to post",
+  cancelButtonText: "Go to profile",
+})
+
+if (result.isConfirmed) {
+  router.push(`/posts/${postId}`)
+} else {
+  router.push(`/u/${username}`)
+}
   }
 
   return (
