@@ -23,7 +23,7 @@ export default async function Mainpage(props: {
       // не залогинен → просто пустой список
       posts = await prisma.post.findMany({
         where: { authorId: { in: [] } },
-        include: { category: true, author: { select: { username: true } } },
+        include: { category: true, author: { select: { username: true, avatarUrl: true } } },
         orderBy: { createdAt: "desc" },
       })
     } else {
@@ -36,7 +36,7 @@ export default async function Mainpage(props: {
 
       posts = await prisma.post.findMany({
         where: { authorId: { in: ids } }, // ids может быть [], это ок → вернёт []
-        include: { category: true, author: { select: { username: true } } },
+        include: { category: true, author: { select: { username: true, avatarUrl: true } } },
         orderBy: { createdAt: "desc" },
       })
     }
@@ -46,7 +46,7 @@ export default async function Mainpage(props: {
         activeCategory !== "all"
           ? { category: { name: activeCategory } }
           : undefined,
-      include: { category: true, author: { select: { username: true } } },
+      include: { category: true, author: { select: { username: true, avatarUrl: true } } },
       orderBy: { createdAt: "desc" },
     })
   }

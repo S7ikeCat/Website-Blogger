@@ -1,5 +1,6 @@
 "use client"
 
+import { formatDate } from "@/shared/lib/formatDate";
 import Image from "next/image"
 import Link from "next/link"
 
@@ -11,6 +12,8 @@ type Post = {
     post_id: number
     title: string
     description: string
+    createdAt: string | Date
+updatedAt: string | Date
     img_post: string | null
     category: Category | null
 }
@@ -47,6 +50,7 @@ export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: 
               alt=""
               width={56}
               height={56}
+              unoptimized
             />
           </div>
 
@@ -79,7 +83,11 @@ export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: 
   )}
 
   {isOwner && (
-    <div><Link href="/posts/new">Create post</Link></div>
+    <div className="flex gap-3">
+      <Link href="/posts/new">Create post</Link>
+    <Link href="/settings">Settings</Link>
+    
+    </div>
   )}
 
   {!isOwner && (
@@ -144,9 +152,14 @@ export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: 
           {p.title}
         </Link></h2>
             <p className="mt-2 text-sm text-gray-700">{p.description}</p>
+            <div>{formatDate(p.createdAt)}</div>
+
+{p.updatedAt && new Date(p.updatedAt).getTime() !== new Date(p.createdAt).getTime() && (
+  <div>обновлено: {formatDate(p.updatedAt)}</div>
+)}
             {isOwner && (
 
-<div className="mt-4 flex gap-4">
+<div className="mt-auto flex gap-4">
 <Link
   href={`/posts/${p.post_id}/edit`}
   className="mt-4 border-2 border-black bg-white px-3 py-2 text-sm font-semibold"
@@ -179,7 +192,9 @@ export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: 
     Delete
   </button>
   </div>
-)}
+)}<div>
+
+</div>
           </article>
           
         ))}

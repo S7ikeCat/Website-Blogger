@@ -12,12 +12,17 @@ type Category = {
 }
 
 type Post = {
-  author: {username: string}
   post_id: number
   title: string
   description: string
   img_post: string | null
   category: Category | null
+  createdAt: string | Date
+  updatedAt: string | Date
+  author: {
+    username: string
+    avatarUrl: string | null
+  }
 }
 
 type HomeProps = {
@@ -105,6 +110,15 @@ export function Home({ categories, posts, activeCategory }: HomeProps) {
 
       {/* ✅ Автор */}
       <div className="mt-1 text-xs text-gray-600">
+      <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-black">
+            <Image
+              src={p.author.avatarUrl ?? "/default-avatar.jpg"}
+              alt=""
+              width={56}
+              height={56}
+              unoptimized
+            />
+          </div>
         by{" "}
         <Link href={`/u/${p.author.username}`} className="underline font-semibold">
           @{p.author.username}
@@ -119,6 +133,7 @@ export function Home({ categories, posts, activeCategory }: HomeProps) {
       </h2>
 
       <p className="mt-2 text-sm text-gray-700">{p.description}</p>
+      
     </article>
 
         ))}

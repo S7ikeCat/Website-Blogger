@@ -1,3 +1,4 @@
+import { formatDate } from "@/shared/lib/formatDate"
 import { prisma } from "@/shared/lib/prisma"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,7 +23,13 @@ export default async function PostPage({params}: {params: Promise<{ post_id: str
         <main>
 
             <div className="">
-                Author:{" "}
+            <Image
+              src={post.author.avatarUrl ?? "/default-avatar.jpg"}
+              alt=""
+              width={56}
+              height={56}
+              unoptimized
+            />
                 <Link className="underline" href={`/u/${post.author.username}`}>
                 @{post.author.username}
                 </Link>
@@ -47,6 +54,13 @@ export default async function PostPage({params}: {params: Promise<{ post_id: str
             <p className="mt-6 text-base leading-7 text-gray-800S">
                 {post.description}
             </p>
+            <div>
+  <div>{formatDate(post.createdAt)}</div>
+
+  {post.updatedAt && new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime() && (
+    <div>обновлено: {formatDate(post.updatedAt)}</div>
+  )}
+</div>
         </main>
     )
 }

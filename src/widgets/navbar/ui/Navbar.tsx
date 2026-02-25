@@ -76,6 +76,14 @@ export function Navbar() {
 
 {!loading && user && (
   <>
+  <Image
+              src={user.avatarUrl ?? "/default-avatar.jpg"}
+              alt=""
+              width={56}
+              height={56}
+              unoptimized
+              
+            />
     <Link href={`/u/${user.username}`}>{user.username}</Link>
 
     <Link href="/posts/new">Create post</Link>
