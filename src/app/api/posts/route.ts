@@ -42,7 +42,24 @@ export async function POST(req: Request) {
 
       },
       include: { category: true, author: {select: {id: true, username: true}} },
+
+      
     })
+    const followers = await prisma.follow.findMany({
+      where: { followingId: user.id }, // кто подписан на автора
+      select: { followerId: true },
+    })
+    
+    if (followers.length) {
+      await prisma.notification.createMany({
+        data: followers.map((f) => ({
+          userId: f.followerId,
+          type: "NEW_POST",
+          text: `@${user.username} published a new post: ${post.title}`,
+          href: `/posts/${post.post_id}`,
+        })),
+      })
+    }
   
     return Response.json({ok: true,
       post: {

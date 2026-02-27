@@ -7,23 +7,27 @@ generator client {
   provider = "prisma-client-js"
 }
 
-/* =======================
-   Categories
-======================= */
+/**
+ * =======================
+ * Categories
+ * =======================
+ */
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
   posts Post[]
 }
 
-/* =======================
-   Posts
-======================= */
+/**
+ * =======================
+ * Posts
+ * =======================
+ */
 model Post {
-  post_id     Int      @id @default(autoincrement())
+  post_id     Int     @id @default(autoincrement())
   img_post    String?
-  imgPostKey  String?  // ✅ ключ UploadThing для удаления
+  imgPostKey  String? // ✅ ключ UploadThing для удаления
   title       String
   description String
 
@@ -37,18 +41,43 @@ model Post {
   updatedAt DateTime @updatedAt
 }
 
-/* =======================
-   Enum roles
-======================= */
+/**
+ * =======================
+ * Enum roles
+ * =======================
+ */
 
 enum Role {
   USER
   ADMIN
 }
 
-/* =======================
-   Model user
-======================= */
+/**
+ * =======================
+ * Model notification
+ * =======================
+ */
+
+model Notification {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type String // "NEW_POST" | "POST_DELETED" (можно enum позже)
+  text String
+  href String? // ссылка куда вести (например /posts/123)
+
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  @@index([userId, createdAt])
+}
+
+/**
+ * =======================
+ * Model user
+ * =======================
+ */
 
 model User {
   id           Int      @id @default(autoincrement())
@@ -56,30 +85,60 @@ model User {
   email        String   @unique
   passwordHash String
   avatarUrl    String?
-  avatarKey   String?  // ✅ ключ UploadThing для удаления
+  avatarKey    String? // ✅ ключ UploadThing для удаления
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  posts        Post[]
+  posts Post[]
 
-  following    Follow[] @relation("Following")
-  followers    Follow[] @relation("Followers")
+  following Follow[] @relation("Following")
+  followers Follow[] @relation("Followers")
+
+  notifications Notification[]
+
+  isBanned  Boolean   @default(false)
+  banReason String?
+  bannedAt  DateTime?
+
+  moderationAsAdmin ModerationAction[] @relation("ModerationAdmin")
+  moderationAsUser  ModerationAction[] @relation("ModerationUser")
 }
 
-/* =======================
-   Model Follow
-======================= */
+/**
+ * =======================
+ * Model Follow
+ * =======================
+ */
 
 model Follow {
-  id          Int  @id @default(autoincrement())
+  id          Int @id @default(autoincrement())
   followerId  Int
   followingId Int
 
-  follower    User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([followerId, followingId])
+}
+
+enum ModerationType {
+  WARN
+  BAN
+  UNBAN
+  DELETE_POST
+}
+
+model ModerationAction {
+  id        Int            @id @default(autoincrement())
+  adminId   Int
+  userId    Int
+  type      ModerationType
+  reason    String?
+  createdAt DateTime       @default(now())
+
+  admin User @relation("ModerationAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+  user  User @relation("ModerationUser", fields: [userId], references: [id], onDelete: Cascade)
 }
