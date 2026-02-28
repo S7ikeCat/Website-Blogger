@@ -1,4 +1,5 @@
 import { formatDate } from "@/shared/lib/formatDate"
+import { getCurrentUser } from "@/shared/lib/getCurrentUser"
 import { prisma } from "@/shared/lib/prisma"
 import Image from "next/image"
 import Link from "next/link"
@@ -10,14 +11,19 @@ export default async function PostPage({params}: {params: Promise<{ post_id: str
     const id = Number(post_id)
     if (!Number.isFinite(id)) notFound()
 
+        const viewer = await getCurrentUser()
+        
     const post = await prisma.post.findUnique({
         where: {post_id: id},
         include: {category: true,
-            author: {select: {username: true, avatarUrl: true}}
+            author: {select: {username: true, avatarUrl: true, isBanned: true}}
         },
     })
 
     if(!post) notFound()
+
+    const canSeeBannedAuthorPost = viewer?.role === "ADMIN"
+    if (post.author.isBanned && !canSeeBannedAuthorPost) notFound()
     
     return (
         <main>

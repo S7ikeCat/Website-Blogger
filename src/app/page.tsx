@@ -20,7 +20,6 @@ export default async function Mainpage(props: {
     const viewer = await getCurrentUser()
 
     if (!viewer) {
-      // не залогинен → просто пустой список
       posts = await prisma.post.findMany({
         where: { authorId: { in: [] } },
         include: { category: true, author: { select: { username: true, avatarUrl: true } } },
@@ -35,7 +34,10 @@ export default async function Mainpage(props: {
       const ids = following.map((f) => f.followingId)
 
       posts = await prisma.post.findMany({
-        where: { authorId: { in: ids } }, // ids может быть [], это ок → вернёт []
+        where: {
+          authorId: { in: ids },          // показываем только тех, на кого подписан
+          author: { isBanned: false },    // ✅ скрываем посты забаненных
+        },
         include: { category: true, author: { select: { username: true, avatarUrl: true } } },
         orderBy: { createdAt: "desc" },
       })
@@ -44,8 +46,13 @@ export default async function Mainpage(props: {
     posts = await prisma.post.findMany({
       where:
         activeCategory !== "all"
-          ? { category: { name: activeCategory } }
-          : undefined,
+          ? {
+              category: { name: activeCategory },
+              author: { isBanned: false }, // ✅ скрываем посты забаненных
+            }
+          : {
+              author: { isBanned: false }, // ✅ скрываем посты забаненных
+            },
       include: { category: true, author: { select: { username: true, avatarUrl: true } } },
       orderBy: { createdAt: "desc" },
     })

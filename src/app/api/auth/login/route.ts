@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true, passwordHash: true },
+    select: { id: true, passwordHash: true, isBanned: true }, // ✅ добавили
   })
 
   if (!user) {
@@ -30,6 +30,13 @@ export async function POST(req: Request) {
   const ok = await bcrypt.compare(password, user.passwordHash)
   if (!ok) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+  }
+
+  // ✅ СНАЧАЛА бан-проверка, потом токен
+  if (user.isBanned) {
+    const bannedRes = NextResponse.json({ error: "BANNED" }, { status: 403 })
+    bannedRes.cookies.set("banned", "1", { httpOnly: true, path: "/" })
+    return bannedRes
   }
 
   const token = signToken({ userId: user.id })
@@ -42,6 +49,9 @@ export async function POST(req: Request) {
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   })
+
+  // ✅ если норм — явно сбрасываем banned
+  res.cookies.set("banned", "0", { httpOnly: true, path: "/" })
 
   return res
 }

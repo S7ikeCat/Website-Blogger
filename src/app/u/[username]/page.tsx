@@ -13,24 +13,29 @@ export default async function Page({params}: PageProps) {
     const {username} = await params
 
     const user = await prisma.user.findUnique({
-        where: {username},
+        where: { username },
         select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
-            role: true,
-            _count: {
-                select: {followers: true, following: true, posts: true}
-            }
-        }
-    })
+          id: true,
+          username: true,
+          avatarUrl: true,
+          role: true,
+          isBanned: true,
+          banReason: true,
+          _count: { select: { followers: true, following: true, posts: true } },
+        },
+      })
 
     if(!user) notFound()
 
-        const posts = await prisma.post.findMany({
-            where: {authorId: user.id},
-            orderBy: {createdAt: "desc"},
-            include: {category: true, author: {select: {username: true}}},
+        const isViewerAdmin = viewer?.role === "ADMIN"
+
+        const posts =
+    user.isBanned && !isViewerAdmin
+      ? []
+      : await prisma.post.findMany({
+          where: { authorId: user.id },
+          orderBy: { createdAt: "desc" },
+          include: { category: true, author: { select: { username: true } } },
         })
 
         const isOwner = viewer?.id === user.id

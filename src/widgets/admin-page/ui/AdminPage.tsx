@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import Swal from "sweetalert2"
-import { FiShield, FiUsers, FiPlusSquare, FiTrash2 } from "react-icons/fi"
+import { FiUsers, FiPlusSquare, FiTrash2 } from "react-icons/fi"
 import { CreatePostForm } from "@/features/post/create/ui/CreatePostForm"
 
 type AdminUser = {

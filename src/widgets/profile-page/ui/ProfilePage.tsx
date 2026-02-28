@@ -20,11 +20,13 @@ updatedAt: string | Date
 
 
 type Profile = {
-    id: number
-    username: string
-    avatarUrl: string | null
-    role: "USER" | "ADMIN"
-    _count: {followers: number; following: number; posts: number}
+  id: number
+  username: string
+  avatarUrl: string | null
+  role: "USER" | "ADMIN"
+  isBanned: boolean
+  banReason?: string | null
+  _count: { followers: number; following: number; posts: number }
 }
 
 type Props = {
@@ -38,7 +40,14 @@ type Props = {
 export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: Props) {
 
   const isViewerAdmin = viewerRole === "ADMIN"
-  
+  if (profile.isBanned && viewerRole !== "ADMIN") {
+    return (
+      <div>
+        <div>This user is banned</div>
+        {profile.banReason ? <div>Reason: {profile.banReason}</div> : null}
+      </div>
+    )
+  }
 
     return (
         <div className="mx-auto max-w-4xl p-6">
@@ -151,7 +160,7 @@ export function ProfilePage({profile, posts, isOwner, isFollowing, viewerRole}: 
             <h2 className="mt-2 text-lg font-bold"><Link href={`/posts/${p.post_id}`} className="underline">
           {p.title}
         </Link></h2>
-            <p className="mt-2 text-sm text-gray-700">{p.description}</p>
+            <p className="mt-2 text-sm text-gray-700">{p.description.length > 20 ? p.description.slice(0, 50) + "..." : p.description}</p>
             <div>{formatDate(p.createdAt)}</div>
 
 {p.updatedAt && new Date(p.updatedAt).getTime() !== new Date(p.createdAt).getTime() && (

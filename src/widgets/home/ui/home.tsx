@@ -132,7 +132,7 @@ export function Home({ categories, posts, activeCategory }: HomeProps) {
         </Link>
       </h2>
 
-      <p className="mt-2 text-sm text-gray-700">{p.description}</p>
+      <p className="mt-2 text-sm text-gray-700">{p.description.length > 20 ? p.description.slice(0, 50) + "..." : p.description}</p>
       
     </article>
 
