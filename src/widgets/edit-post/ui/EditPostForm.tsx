@@ -56,7 +56,7 @@ export default function EditPostForm({ initial, categories }: Props) {
         return
       }
 
-      setOk("Saved")
+      setOk("Saved successfully")
       router.refresh()
       router.push(`/posts/${initial.postId}`)
     } finally {
@@ -65,115 +65,163 @@ export default function EditPostForm({ initial, categories }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <div className="border-2 border-black bg-white p-6">
-        <h1 className="text-xl font-bold">Edit post</h1>
+    <div className="mx-auto w-full max-w-3xl px-6 py-10">
+      <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">Edit post</h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Update your post details, cover image, and category.
+            </p>
+          </div>
 
-        <div className="mt-6 space-y-2">
-          <div className="text-sm font-semibold">Post image</div>
+          <div className="text-xs text-gray-500">
+            Post ID: <span className="font-semibold text-gray-700">{initial.postId}</span>
+          </div>
+        </div>
 
-          {/* Показываем текущую картинку */}
-          {imgPost?.trim() && (
-            <div className="overflow-hidden border-2 border-black">
-              <Image
-                src={imgPost}
-                alt=""
-                width={900}
-                height={500}
-                unoptimized
-                className="h-48 w-full object-cover"
-              />
+        {/* Cover image */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">Cover image</div>
+              <div className="mt-1 text-xs text-gray-500">
+                Upload a new image or remove the current one.
+              </div>
+            </div>
+          </div>
+
+          {imgPost?.trim() ? (
+            <div className="mt-4 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
+              <div className="relative h-52 w-full">
+                <Image
+                  src={imgPost}
+                  alt="post cover"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4 rounded-2xl border border-dashed border-black/20 bg-black/5 p-6 text-sm text-gray-600">
+              No cover image selected.
             </div>
           )}
 
-          {/* UploadThing: грузим новую картинку в POST app */}
-          <UploadButtonPost
-            endpoint="postImage"
-            onClientUploadComplete={(files) => {
-              const f = files?.[0]
-              if (!f?.serverData) return
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm">
+              <UploadButtonPost
+                endpoint="postImage"
+                onClientUploadComplete={(files) => {
+                  const f = files?.[0]
+                  if (!f?.serverData) return
+                  setImgPost(f.serverData.url)
+                  setImgPostKey(f.serverData.key)
+                }}
+                onUploadError={(e: Error) => {
+                  setError(e.message)
+                }}
+              />
+            </div>
 
-              // ВАЖНО: мы просто сохраняем новый url+key в стейт.
-              // Старую картинку удалим в API PATCH (server-side), когда подтвердим обновление.
-              setImgPost(f.serverData.url)
-              setImgPostKey(f.serverData.key)
-            }}
-            onUploadError={(e: Error) => {
-              setError(e.message)
-            }}
-          />
-
-          {/* Удалить картинку у поста (сделаем null). Старую удалит API PATCH */}
-          {imgPost && (
-            <button
-              type="button"
-              className="border-2 border-black bg-white px-3 py-2 text-sm font-semibold"
-              onClick={() => {
-                setImgPost("")
-                setImgPostKey("")
-              }}
-            >
-              Remove image
-            </button>
-          )}
+            {imgPost && (
+              <button
+                type="button"
+                className="rounded-xl border border-black/15 bg-white px-4 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
+                onClick={() => {
+                  setImgPost("")
+                  setImgPostKey("")
+                }}
+              >
+                Remove image
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="mt-6 space-y-2">
-          <div className="text-sm font-semibold">Title</div>
+        {/* Title */}
+        <div className="mt-8">
+          <label className="mb-1 block text-sm font-semibold text-gray-900">
+            Title
+          </label>
           <input
-            className="w-full border-2 border-black p-2"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            placeholder="Post title..."
+            className="w-full rounded-xl border border-black/15 px-4 py-2 text-sm outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
           />
         </div>
 
-        <div className="mt-4 space-y-2">
-          <div className="text-sm font-semibold">Description</div>
+        {/* Description */}
+        <div className="mt-5">
+          <label className="mb-1 block text-sm font-semibold text-gray-900">
+            Description
+          </label>
           <textarea
-            className="w-full border-2 border-black p-2"
-            rows={6}
+            rows={8}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            placeholder="Write your post content..."
+            className="w-full resize-y rounded-xl border border-black/15 px-4 py-3 text-sm leading-relaxed outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
           />
+          <div className="mt-2 text-xs text-gray-500">
+            Tip: use line breaks — they will be preserved.
+          </div>
         </div>
 
-        <div className="mt-4 space-y-2">
-          <div className="text-sm font-semibold">Category</div>
+        {/* Category */}
+        <div className="mt-5">
+          <label className="mb-1 block text-sm font-semibold text-gray-900">
+            Category
+          </label>
+
           <select
-  className="w-full border-2 border-black p-2"
-  value={categoryId ?? ""} 
-  onChange={(e) => {
-    const v = e.target.value
-    setCategoryId(v === "" ? null : Number(v))
-  }}
->
-  <option value="">Uncategorized</option>
-  {categories.map((c) => (
-    <option key={c.id} value={c.id}>
-      {c.name}
-    </option>
-  ))}
-</select>
+            className="w-full rounded-xl border border-black/15 bg-white px-4 py-2 text-sm outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
+            value={categoryId ?? ""}
+            onChange={(e) => {
+              const v = e.target.value
+              setCategoryId(v === "" ? null : Number(v))
+            }}
+          >
+          
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {error && <div className="mt-4 border-2 border-black p-2 text-sm">{error}</div>}
-        {ok && <div className="mt-4 border-2 border-black p-2 text-sm">{ok}</div>}
+        {/* Status */}
+        {error && (
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
-        <div className="mt-6 flex gap-2">
-          <button
-            disabled={loading}
-            onClick={onSave}
-            className="border-2 border-black bg-white px-4 py-2 font-semibold disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
+        {ok && (
+          <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            {ok}
+          </div>
+        )}
 
+        {/* Actions */}
+        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
-            className="border-2 border-black bg-white px-4 py-2 font-semibold"
+            className="rounded-xl border border-black/15 bg-white px-4 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
             onClick={() => router.push(`/posts/${initial.postId}`)}
           >
             Cancel
+          </button>
+
+          <button
+            disabled={loading}
+            onClick={onSave}
+            className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Saving..." : "Save changes"}
           </button>
         </div>
       </div>

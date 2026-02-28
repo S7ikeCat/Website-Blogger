@@ -178,15 +178,15 @@ export function AdminUserDetailsPage({ user, posts, actions }: Props) {
       <div className="mt-5 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-14 w-14 overflow-hidden rounded-full border border-neutral-200">
-              <Image
-                src={user.avatarUrl ?? "/default-avatar.jpg"}
-                alt=""
-                width={56}
-                height={56}
-                unoptimized
-              />
-            </div>
+          <span className="relative h-10 w-10 overflow-hidden rounded-full border border-black/15 bg-white">
+      <Image
+        src={user.avatarUrl ?? "/default-avatar.jpg"}
+        alt="avatar"
+        fill
+        className="object-cover"
+        unoptimized
+      />
+    </span>
 
             <div>
               <div className="text-xl font-bold">@{user.username}</div>

@@ -1,50 +1,83 @@
-import { getCurrentUser } from "@/shared/lib/getCurrentUser";
-import { prisma } from "@/shared/lib/prisma";
-import { UserCard } from "@/widgets/user-card/ui/UserCard";
-import { notFound } from "next/navigation";
+import { getCurrentUser } from "@/shared/lib/getCurrentUser"
+import { prisma } from "@/shared/lib/prisma"
+import { UserCard } from "@/widgets/user-card/ui/UserCard"
+import { notFound } from "next/navigation"
+import Link from "next/link"
 
-type PageProps = {params: Promise<{username: string}>}
+type PageProps = { params: Promise<{ username: string }> }
 
-export default async function Page({params}: PageProps) {
-    const {username} = await params
-    
-    const profile  = await prisma.user.findUnique({
-        where: {username},
-        select: {id: true, username: true}
-    })
-    if(!profile) notFound()
-    
-        const viewer = await getCurrentUser()
+export default async function Page({ params }: PageProps) {
+  const { username } = await params
 
-        const following = await prisma.follow.findMany({
-            where: {followerId: profile.id}, //на кого подписан profile
-            include: {following: {select: {id: true, username: true, avatarUrl: true}}},
-            orderBy: {createdAt: "desc"}
-        })
+  const profile = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true, username: true },
+  })
+  if (!profile) notFound()
 
-        const viewerFollowingIds = viewer ?
-        new Set(
-            (
-                await prisma.follow.findMany({
-                    where: {followerId: viewer.id},
-                    select: {followingId: true}
-                })
-            ).map((x) => x.followingId)
-        )
-        : new Set<number>()
+  const viewer = await getCurrentUser()
 
-        return(
-            <div className="">
-                <h1 className="">Following of @{profile.username}</h1>
+  const following = await prisma.follow.findMany({
+    where: { followerId: profile.id },
+    include: {
+      following: { select: { id: true, username: true, avatarUrl: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  })
 
-                <div className="">
-                    {following.map((f) => (
-                        <UserCard key={f.following.id}
-                        user={f.following}
-                        canFollow={!!viewer && viewer.id !== f.following.id}
-                        initiallyFollowing={viewerFollowingIds.has(f.following.id)}/>
-                    ))}
-                </div>
+  const viewerFollowingIds = viewer
+    ? new Set(
+        (
+          await prisma.follow.findMany({
+            where: { followerId: viewer.id },
+            select: { followingId: true },
+          })
+        ).map((x) => x.followingId)
+      )
+    : new Set<number>()
+
+  return (
+    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">Following</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            People that{" "}
+            <span className="font-semibold text-gray-900">
+              @{profile.username}
+            </span>{" "}
+            follows.
+          </p>
+        </div>
+
+        <Link
+          href={`/u/${profile.username}`}
+          className="rounded-xl border border-black/15 bg-white px-4 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"
+        >
+          Back to profile
+        </Link>
+      </div>
+
+      {following.length === 0 ? (
+        <div className="rounded-2xl border border-black/10 bg-white p-6 text-sm text-gray-600 shadow-sm">
+          No followings yet.
+        </div>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {following.map((f) => (
+            <div
+              key={f.following.id}
+              className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <UserCard
+                user={f.following}
+                canFollow={!!viewer && viewer.id !== f.following.id}
+                initiallyFollowing={viewerFollowingIds.has(f.following.id)}
+              />
             </div>
-        )
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }

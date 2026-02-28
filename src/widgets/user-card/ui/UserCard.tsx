@@ -40,21 +40,39 @@ export function UserCard({user, canFollow, initiallyFollowing}: Props) {
         }      
     }
     return(
-        <div className="">
-            <Link href={`/u/${user.username}`} className="">
-            <div className="">
-                <Image src={user.avatarUrl ?? "/default-avatar.jpg"} alt="" width={48} height={48}/>
-            </div>
-            <div className="">@{user.username}</div>
-            </Link>
+        <div className="flex justify-between">
+           <Link href={`/u/${user.username}`} className="flex items-center gap-3 min-w-0">
+  <span className="relative h-12 w-12 overflow-hidden rounded-full border border-black/10 bg-white">
+    <Image
+      src={user.avatarUrl?.trim() ? user.avatarUrl : "/default-avatar.jpg"}
+      alt="avatar"
+      fill
+      unoptimized
+      className="object-cover"
+    />
+  </span>
 
-            {canFollow && (
-                <button disabled={loading}
-                onClick={toggleFollow}
-                className="">
-                    {following ? "Unfollow" : "Follow"}
-                </button>
-            )}
+  <span className="truncate font-semibold text-gray-900 hover:underline">
+    @{user.username}
+  </span>
+</Link>
+
+{canFollow && (
+  <button
+    type="button"
+    disabled={loading}
+    onClick={toggleFollow}
+    className={[
+      "rounded-xl px-4 py-2 text-sm font-semibold transition shadow-sm",
+      "active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed",
+      following
+        ? "border border-black/15 bg-white text-gray-900 hover:-translate-y-0.5 hover:shadow-md"
+        : "bg-black text-white hover:opacity-90 hover:-translate-y-0.5",
+    ].join(" ")}
+  >
+    {loading ? "..." : following ? "Unfollow" : "Follow"}
+  </button>
+)}
         </div>
     )
     

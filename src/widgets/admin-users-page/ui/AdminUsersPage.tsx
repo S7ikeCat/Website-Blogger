@@ -73,15 +73,15 @@ export function AdminUsersPage({ users }: Props) {
             className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
           >
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 overflow-hidden rounded-full border border-neutral-200">
+              <span className="relative h-10 w-10 overflow-hidden rounded-full border border-black/15 bg-white">
                 <Image
                   src={u.avatarUrl ?? "/default-avatar.jpg"}
-                  alt=""
-                  width={48}
-                  height={48}
+                  alt="avatar"
+                  fill
+                  className="object-cover"
                   unoptimized
                 />
-              </div>
+              </span>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
